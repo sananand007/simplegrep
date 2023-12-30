@@ -8,6 +8,22 @@ Functionalities
 
 ```sh
 <path/to/bin/>simplegrep foostring path_to_text_file
+
+simplegrep % cargo run -- --help
+   Compiling simplegrep v0.1.0 (/Users/wano/Public/code/buildWithRust/simplegrep)
+    Finished dev [unoptimized + debuginfo] target(s) in 0.17s
+     Running `target/debug/simplegrep --help`
+
+Search and logically process patterns on the Command line
+
+Usage: simplegrep [OPTIONS]
+
+Options:
+  -r, --pattern <PATTERN>  The pattern to look for [default: ]
+  -p, --path <PATH>        The path of the file to read [default: ]
+  -h, --help               Print help
+  -V, --version            Print version
+
 ```
 
 ## Current Output 
@@ -59,7 +75,12 @@ forest:1
 
 ## Improvments
 - Use `BufReader` to improve read speeds for the input document
+- Sort the output and print the top 10% 
+- add arg for each functionality
 - Can we do more than 1 pattern as an input
 - Can we do a directory of Files as an input (as well keeping a file as an input)
 - Add some better CLI documnets such as `--help` and `--version`
 - Get a structured and formatted output, based on kind of output needed
+- Take a input as a Large document and output a structured format 
+- Introduce Logging
+- Introduce tests 
