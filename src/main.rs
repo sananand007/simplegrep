@@ -1,30 +1,55 @@
 use clap::Parser;
-use std::io::BufReader;
+use std::collections::HashMap;
+use std::io::{BufRead, BufReader};
 use std::fs::File;
 
-/// Search for a pattern in a file and display the lines that contain it
+
+/// Search and logically process patterns on the Command line
 #[derive(Parser, Debug)]
-struct Cli {
+#[command(author, version, about, long_about = None)]
+
+struct Args {
     /// The pattern to look for
+    #[arg(short='r', long, default_value="")]
     _pattern: String,
     
 
     /// The path of the file to read
+    #[arg(short, long, default_value="")]
     _path: std::path::PathBuf,
 }
 
+fn main() -> Result<(), std::io::Error> { 
+    let args = Args::parse();
+    let f = File::open(&args._path).expect("Unable to open the file!");
+    let mut br = BufReader::new(f);
+    let mut line = String::new();
+    let mut check_pattern = false; 
+    let mut high_freq_wordmap: HashMap<String, i32> = HashMap::new();
 
-fn main() {
-    let _pattern = std::env::args().nth(1).expect("no pattern given");
-    let _path = std::env::args().nth(2).expect("no path given");
-    
-    let args = Cli::parse();
-    let content = std::fs::read_to_string(&args._path).expect("could not read the file provided!");
-    
-    for line in content.lines() {
-        if line.contains(&args._pattern) {
-            println!("{}", line);
+    loop {
+        let content = br.read_line(&mut line)?;
+        if content == 0 {
+            break;
         }
+        if line.contains(&args._pattern) {
+            check_pattern = true;
+        }
+        for word in line.split_whitespace() {
+            {
+                let mut temp_word = word.to_string(); 
+                temp_word.retain(|temp_word| !r#"()[]{},.*":'"#.contains(temp_word));
+                high_freq_wordmap.entry(temp_word).and_modify(|counter| *counter += 1).or_insert(1);
+            }
+        }
+        line.clear();
     }
-    println!("pattern {:?}, {:?}", args._pattern, args._path);
+    println!("pattern {:?} in {:?} {:?}", args._pattern, args._path, check_pattern);
+    println!("######################################");
+    for (key, val) in high_freq_wordmap.iter() {
+        println!("{key}:{val}");
+    }
+    println!("######################################");
+
+    Ok(())
 }
