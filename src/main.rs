@@ -2,6 +2,7 @@ use clap::Parser;
 use std::collections::HashMap;
 use std::io::{BufRead, BufReader};
 use std::fs::File;
+use anyhow::{Context, Result};
 
 
 /// Search and logically process patterns on the Command line
@@ -19,16 +20,16 @@ struct Args {
     _path: std::path::PathBuf,
 }
 
-fn main() -> Result<(), std::io::Error> { 
+fn main() -> Result<(), Box<dyn std::error::Error>> { 
     let args = Args::parse();
-    let f = File::open(&args._path).expect("Unable to open the file!");
+    let f = File::open(&args._path).map_err(|_| "the correct file path is not provided")?;
     let mut br = BufReader::new(f);
     let mut line = String::new();
     let mut check_pattern = false; 
     let mut high_freq_wordmap: HashMap<String, i32> = HashMap::new();
 
     loop {
-        let content = br.read_line(&mut line)?;
+        let content = br.read_line(&mut line).with_context(|| format!("could not read line"))?;
         if content == 0 {
             break;
         }
