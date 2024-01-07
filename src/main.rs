@@ -22,7 +22,7 @@ struct Args {
 
 fn main() -> Result<(), Box<dyn std::error::Error>> { 
     let args = Args::parse();
-    let f = File::open(&args._path).expect("Unable to open the file!");
+    let f = File::open(&args._path).map_err(|_| "the correct file path is not provided")?;
     let mut br = BufReader::new(f);
     let mut line = String::new();
     let mut check_pattern = false; 
